@@ -100,18 +100,16 @@ class Lexer:
                 self._i += 1
             return Token.number(int(val))
 
-        # Check for keywords
-        for keyword in Keyword:
-            if self._s[self._i:].startswith(keyword.value):
-                self._i += len(keyword.value)
-                return Token.keyword(keyword.value)
-
-        # Check for identifier
+        # Check for identifier and keyword
         if self._s[self._i] in VALID_IDENTIFIER_STARTS:
             while not self.eof and self._s[self._i] in VALID_IDENTIFIERS:
                 val += self._s[self._i]
                 self._i += 1
-            return Token.name(val)
+            for keyword in Keyword:
+                if val == keyword.value:
+                    return Token.keyword(val)
+            else:
+                return Token.name(val)
 
         # Check for single character operator
         if self._s[self._i] in '=#*+-/,;.()':
@@ -166,6 +164,7 @@ class Expression(NamedTuple):
     """
     Represents an expression
     """
+    prefix: str
     terms: List[Term]
     ops: List[str]
 
@@ -491,7 +490,12 @@ class Parser:
         """
         Parses an expression
         """
+        prefix = ''
         terms, ops = [], []
+        if self.check(Token.op('+')):
+            prefix = '+'
+        elif self.check(Token.op('-')):
+            prefix = '-'
         terms.append(self.term())
         while True:
             if self.check(Token.op('+')):
@@ -501,7 +505,7 @@ class Parser:
             else:
                 break
             terms.append(self.term())
-        return Expression(terms, ops)
+        return Expression(prefix, terms, ops)
 
     def term(self) -> Term:
         """
@@ -553,16 +557,11 @@ def test_lexer():
 def test_parser():
     test_program = \
         """
-    var i, s;
-    begin
-    i := 0; s := 0;
-    while i < 5 do
-    begin
-        i := i + 1;
-        s := s + i * i
-    end
-    end.
-    """
+        var if_i;
+        begin
+            if_i := -5 + 1
+        end.
+        """
     parser = Parser(Lexer(test_program))
     print(parser.program())
 
