@@ -414,8 +414,7 @@ class Parser:
         """
         Parses a begin statement
         """
-        body = []
-        body.append(self.statement())
+        body = [self.statement()]
         while not self.check(Token.keyword('end')):
             if not self.check(Token.op(';')):
                 raise SyntaxError('Expected ";"')
