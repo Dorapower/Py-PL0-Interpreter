@@ -145,11 +145,30 @@ class Lexer:
 
 # TODO: Separate AST into its own file
 
+class Context(NamedTuple):
+    consts: dict[str, int]
+    variables: dict[str, int]
+    procedures: dict[str, Procedure]
+
+
 class Factor(NamedTuple):
     """
     Represents a factor in a term
     """
     value: int | str | Expression
+
+    def eval(self, ctx: Context) -> int:
+        if isinstance(self, int):
+            return self.value
+        elif isinstance(self, str):
+            if self.value in ctx.consts:
+                return ctx.consts[self.value]
+            elif self.value in ctx.variables:
+                return ctx.variables[self.value]
+            else:
+                raise RuntimeError(f'Unknown variable {self.value}')
+        elif isinstance(self, Expression):
+            return self.value.eval(ctx)
 
 
 class Term(NamedTuple):
@@ -159,6 +178,21 @@ class Term(NamedTuple):
     factors: list[Factor]
     ops: list[str]
 
+    def eval(self, ctx: Context) -> int:
+        assert not self.factors.empty(), 'Invalid term'
+        assert len(self.factors) == len(self.ops) + 1, 'Invalid term'
+        ret = self.factors[0].eval(ctx)
+        for op, factor in zip(self.ops, self.factors[1:]):
+            if op == '*':
+                ret *= factor.eval(ctx)
+            elif op == '/':
+                if factor.eval(ctx) == 0:
+                    raise RuntimeError('Division by zero')
+                ret //= factor.eval(ctx)
+            else:
+                raise RuntimeError(f'Unknown operator {op}')
+        return ret
+
 
 class Expression(NamedTuple):
     """
@@ -167,6 +201,9 @@ class Expression(NamedTuple):
     prefix: str
     terms: list[Term]
     ops: list[str]
+
+    def eval(self, ctx: Context) -> int:
+        ...
 
 
 class Const(NamedTuple):
@@ -534,6 +571,22 @@ class Parser:
             return Factor(expr)
         else:
             return Factor(self.name_or_number())
+
+
+class Evaler:
+    p: Program
+
+    def __init__(self, p: Program):
+        self.p = p
+
+    def eval(self):
+        ...
+
+    def eval_program(self):
+        self.eval_block()
+
+    def eval_block(self):
+        ...
 
 
 def test_lexer():
