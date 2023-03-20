@@ -105,8 +105,9 @@ class Lexer:
             while not self.eof and self._s[self._i] in VALID_IDENTIFIERS:
                 val += self._s[self._i]
                 self._i += 1
-            if val in Keyword:
-                return Token.keyword(val)
+            for keyword in Keyword:
+                if val == keyword.value:
+                    return Token.keyword(val)
             else:
                 return Token.name(val)
 
@@ -163,6 +164,7 @@ class Expression(NamedTuple):
     """
     Represents an expression
     """
+    prefix: str
     terms: List[Term]
     ops: List[str]
 
@@ -488,7 +490,12 @@ class Parser:
         """
         Parses an expression
         """
+        prefix = ''
         terms, ops = [], []
+        if self.check(Token.op('+')):
+            prefix = '+'
+        elif self.check(Token.op('-')):
+            prefix = '-'
         terms.append(self.term())
         while True:
             if self.check(Token.op('+')):
@@ -498,7 +505,7 @@ class Parser:
             else:
                 break
             terms.append(self.term())
-        return Expression(terms, ops)
+        return Expression(prefix, terms, ops)
 
     def term(self) -> Term:
         """
@@ -550,16 +557,11 @@ def test_lexer():
 def test_parser():
     test_program = \
         """
-    var i, s;
-    begin
-    i := 0; s := 0;
-    while i < 5 do
-    begin
-        i := i + 1;
-        s := s + i * i
-    end
-    end.
-    """
+        var if_i;
+        begin
+            if_i := -5 + 1
+        end.
+        """
     parser = Parser(Lexer(test_program))
     print(parser.program())
 
