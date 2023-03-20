@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from enum import IntEnum
 from enum import StrEnum
-from typing import List, NamedTuple
+from typing import NamedTuple
 import string
 
 
@@ -156,8 +156,8 @@ class Term(NamedTuple):
     """
     Represents a term in an expression
     """
-    factors: List[Factor]
-    ops: List[str]
+    factors: list[Factor]
+    ops: list[str]
 
 
 class Expression(NamedTuple):
@@ -165,8 +165,8 @@ class Expression(NamedTuple):
     Represents an expression
     """
     prefix: str
-    terms: List[Term]
-    ops: List[str]
+    terms: list[Term]
+    ops: list[str]
 
 
 class Const(NamedTuple):
@@ -242,7 +242,7 @@ class Begin(NamedTuple):
     """
     Represents a begin statement
     """
-    body: List[Statement]
+    body: list[Statement]
 
 
 # TODO: Add support for communication primitives
@@ -257,9 +257,9 @@ class Block(NamedTuple):
     """
     Represents a block
     """
-    consts: List[Const]
-    vars: List[Var]
-    procs: List[Procedure]
+    consts: list[Const]
+    vars: list[Var]
+    procs: list[Procedure]
     stmt: Statement
 
 
@@ -323,7 +323,7 @@ class Parser:
         stmt = self.statement()
         return Block(consts, variables, procs, stmt)
 
-    def consts(self) -> List[Const]:
+    def consts(self) -> list[Const]:
         """
         Parses a list of constants
         """
@@ -340,7 +340,7 @@ class Parser:
             raise SyntaxError('Expected ";"')
         return consts
 
-    def vars(self) -> List[Var]:
+    def vars(self) -> list[Var]:
         """
         Parses a list of variables
         """
