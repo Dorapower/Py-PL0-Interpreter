@@ -100,18 +100,15 @@ class Lexer:
                 self._i += 1
             return Token.number(int(val))
 
-        # Check for keywords
-        for keyword in Keyword:
-            if self._s[self._i:].startswith(keyword.value):
-                self._i += len(keyword.value)
-                return Token.keyword(keyword.value)
-
-        # Check for identifier
+        # Check for identifier and keyword
         if self._s[self._i] in VALID_IDENTIFIER_STARTS:
             while not self.eof and self._s[self._i] in VALID_IDENTIFIERS:
                 val += self._s[self._i]
                 self._i += 1
-            return Token.name(val)
+            if val in Keyword:
+                return Token.keyword(val)
+            else:
+                return Token.name(val)
 
         # Check for single character operator
         if self._s[self._i] in '=#*+-/,;.()':
