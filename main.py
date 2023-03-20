@@ -5,15 +5,20 @@ from enum import StrEnum
 from typing import List, NamedTuple
 import string
 
-class TokenType(IntEnum):
-    Op      = 0
-    Number  = 1
-    Name    = 2
-    Keyword = 3
-    EOF     = 4
+from __future__ import annotations
 
-VALID_IDENTITFIER_STARTS:str = string.ascii_letters + '_'
-VAILD_IDENTIFIERS:str = string.ascii_letters + string.digits + '_'
+
+class TokenType(IntEnum):
+    Op = 0
+    Number = 1
+    Name = 2
+    Keyword = 3
+    EOF = 4
+
+
+VALID_IDENTITFIER_STARTS: str = string.ascii_letters + '_'
+VAILD_IDENTIFIERS: str = string.ascii_letters + string.digits + '_'
+
 
 class Keyword(StrEnum):
     Begin = 'begin'
@@ -28,28 +33,29 @@ class Keyword(StrEnum):
     Var = 'var'
     While = 'while'
 
+
 class Token:
     Type: TokenType
     Value: str | int
 
-    def __init__(self, type:TokenType, value:str | int):
+    def __init__(self, type: TokenType, value: str | int):
         self.type = type
         self.value = value
 
     @staticmethod
-    def op(op:str):
+    def op(op: str):
         return Token(TokenType.Op, op)
 
     @staticmethod
-    def number(number:int):
+    def number(number: int):
         return Token(TokenType.Number, number)
 
     @staticmethod
-    def name(name:str):
+    def name(name: str):
         return Token(TokenType.Name, name)
 
     @staticmethod
-    def keyword(keyword:str):
+    def keyword(keyword: str):
         return Token(TokenType.Keyword, keyword)
 
     @staticmethod
@@ -64,7 +70,7 @@ class Lexer:
     _i: int
     _s: str
 
-    def __init__(self, s:str):
+    def __init__(self, s: str):
         self._s = s
         self._i = 0
 
@@ -75,22 +81,22 @@ class Lexer:
     def _skip_whitespace(self):
         while not self.eof and self._s[self._i].isspace():
             self._i += 1
-    
+
     def next(self) -> Token:
         val = ''
         self._skip_whitespace()
-        
+
         # Check for EOF
         if self.eof:
             return Token.eof()
-        
+
         # Check for number
         if self._s[self._i].isdigit():
             while not self.eof and self._s[self._i].isdigit():
                 val += self._s[self._i]
                 self._i += 1
             return Token.number(int(val))
-            
+
         # Check for keywords
         for keyword in Keyword:
             if self._s[self._i:].startswith(keyword.value):
@@ -127,33 +133,148 @@ class Lexer:
                 val += '='
                 self._i += 1
             return Token.op(val)
-        
+
         # Invalid token
         raise SyntaxError('Invalid token')
 
 
-# class Const(NamedTuple):
-#     """
-#     Represents a constant declaration
-#     """
-#     name: str
-#     value: int
+# TODO: Separate AST into its own file
 
-# class Assignment(NamedTuple):
-#     name: str
-#     expr: Expression
+class Factor(NamedTuple):
+    """
+    Represents a factor in a term
+    """
+    value: int | str | Expression
 
-# class Call(NamedTuple):
-#     name: str
 
-# class Begin(NamedTuple):
-#     statements: List[Statement]
+class Term(NamedTuple):
+    """
+    Represents a term in an expression
+    """
+    factors: List[Factor]
+    ops: List[str]
 
+
+class Expression(NamedTuple):
+    """
+    Represents an expression
+    """
+    terms: List[Term]
+    ops: List[str]
+
+
+class Const(NamedTuple):
+    """
+    Represents a constant declaration
+    """
+    name: str
+    value: int
+
+
+class Var(NamedTuple):
+    """
+    Represents a variable declaration
+    """
+    name: str
+
+
+class Assignment(NamedTuple):
+    """
+    Represents an assignment statement
+    """
+    name: str
+    expr: Expression
+
+
+class Call(NamedTuple):
+    """
+    Represents a call statement
+    """
+    name: str
+
+
+class OddCondition(NamedTuple):
+    """
+    Represents an odd statement
+    """
+    expr: Expression
+
+
+class ComparisonCondition(NamedTuple):
+    """
+    Represents a comparison condition
+    """
+    op: str
+    lhs: Expression
+    rhs: Expression
+
+
+class Condition(NamedTuple):
+    """
+    Represents a condition
+    """
+    condition: OddCondition | ComparisonCondition
+
+
+class If(NamedTuple):
+    """
+    Represents an if statement
+    """
+    cond: Condition
+    stmt: Statement
+
+
+class While(NamedTuple):
+    """
+    Represents a while statement
+    """
+    cond: Condition
+    stmt: Statement
+
+
+class Begin(NamedTuple):
+    """
+    Represents a begin statement
+    """
+    body: List[Statement]
+
+
+# TODO: Add support for communication primitives
+class Statement(NamedTuple):
+    """
+    Represents a statement
+    """
+    stmt: Assignment | Call | If | While | Begin
+
+
+class Block(NamedTuple):
+    """
+    Represents a block
+    """
+    consts: List[Const]
+    vars: List[Var]
+    procs: List[Procedure]
+    stmt: Statement
+
+
+class Procedure(NamedTuple):
+    """
+    Represents a procedure
+    """
+    ident: str
+    body: Block
+
+
+class Program(NamedTuple):
+    """
+    Represents a program
+    """
+    block: Block
 
 
 def test_lexer():
-    test_program =\
-    """
+    test_program = \
+        """
     var i, s;
     begin
     i := 0; s := 0;
@@ -167,6 +288,7 @@ def test_lexer():
     lexer = Lexer(test_program)
     while not lexer.eof:
         print(lexer.next())
+
 
 if __name__ == '__main__':
     test_lexer()
