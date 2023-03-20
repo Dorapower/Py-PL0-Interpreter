@@ -1,0 +1,4 @@
+var if_i;
+begin
+    if_i := 0
+end.
