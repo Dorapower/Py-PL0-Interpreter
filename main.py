@@ -15,8 +15,8 @@ class TokenType(IntEnum):
     EOF = 4
 
 
-VALID_IDENTITFIER_STARTS: str = string.ascii_letters + '_'
-VAILD_IDENTIFIERS: str = string.ascii_letters + string.digits + '_'
+VALID_IDENTIFIER_STARTS: str = string.ascii_letters + '_'
+VALID_IDENTIFIERS: str = string.ascii_letters + string.digits + '_'
 
 
 class Keyword(StrEnum):
@@ -37,8 +37,8 @@ class Token:
     Type: TokenType
     Value: str | int
 
-    def __init__(self, type: TokenType, value: str | int):
-        self.type = type
+    def __init__(self, token_type: TokenType, value: str | int):
+        self.type = token_type
         self.value = value
 
     @staticmethod
@@ -103,8 +103,8 @@ class Lexer:
                 return Token.keyword(keyword.value)
 
         # Check for identifier
-        if self._s[self._i] in VALID_IDENTITFIER_STARTS:
-            while not self.eof and self._s[self._i] in VAILD_IDENTIFIERS:
+        if self._s[self._i] in VALID_IDENTIFIER_STARTS:
+            while not self.eof and self._s[self._i] in VALID_IDENTIFIERS:
                 val += self._s[self._i]
                 self._i += 1
             return Token.name(val)
@@ -289,7 +289,7 @@ class Parser:
         next_token = self.lx.next()
         if next_token == token:
             return True
-        # if the next_token is a name, we dont need to check the value
+        # if the next_token is a name, we don't need to check the value
         if next_token.type == TokenType.Name and token.type == TokenType.Name:
             return True
         self.lx._i = cur
@@ -404,8 +404,6 @@ class Parser:
             return Statement(self.while_statement())
         elif self.check(Token.keyword('call')):
             return Statement(self.call())
-        elif self.check(Token.keyword('odd')):
-            return Statement(self.odd())
         else:
             return Statement(self.assignment())
 
