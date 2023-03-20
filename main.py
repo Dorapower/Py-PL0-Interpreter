@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.11
 # This file implements a parser for PL/0 source code.
 from __future__ import annotations
 
