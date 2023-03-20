@@ -37,23 +37,23 @@ class Token:
         self.value = value
 
     @staticmethod
-    def op(cls, op:str):
+    def op(op:str):
         return Token(TokenType.Op, op)
 
     @staticmethod
-    def number(cls, number:int):
+    def number(number:int):
         return Token(TokenType.Number, number)
 
     @staticmethod
-    def name(cls, name:str):
+    def name(name:str):
         return Token(TokenType.Name, name)
 
     @staticmethod
-    def keyword(cls, keyword:str):
+    def keyword(keyword:str):
         return Token(TokenType.Keyword, keyword)
 
     @staticmethod
-    def eof(cls):
+    def eof():
         return Token(TokenType.EOF, 0)
 
     def __str__(self):
@@ -90,6 +90,12 @@ class Lexer:
                 val += self._s[self._i]
                 self._i += 1
             return Token.number(int(val))
+            
+        # Check for keywords
+        for keyword in Keyword:
+            if self._s[self._i:].startswith(keyword.value):
+                self._i += len(keyword.value)
+                return Token.keyword(keyword.value)
 
         # Check for identifier
         if self._s[self._i] in VALID_IDENTITFIER_STARTS:
@@ -99,7 +105,7 @@ class Lexer:
             return Token.name(val)
 
         # Check for single character operator
-        if self._s[self._i] in '+-=,;()':
+        if self._s[self._i] in '=#*+-/,;.()':
             val = self._s[self._i]
             self._i += 1
             return Token.op(val)
@@ -121,43 +127,46 @@ class Lexer:
                 val += '='
                 self._i += 1
             return Token.op(val)
-
-        # Check for keywords
-        for keyword in Keyword:
-            if self._s[self._i:].startswith(keyword.value):
-                self._i += len(keyword.value)
-                return Token.keyword(keyword.value)
         
         # Invalid token
         raise SyntaxError('Invalid token')
 
 
-class Const(NamedTuple):
+# class Const(NamedTuple):
+#     """
+#     Represents a constant declaration
+#     """
+#     name: str
+#     value: int
+
+# class Assignment(NamedTuple):
+#     name: str
+#     expr: Expression
+
+# class Call(NamedTuple):
+#     name: str
+
+# class Begin(NamedTuple):
+#     statements: List[Statement]
+
+
+
+def test_lexer():
+    test_program =\
     """
-    Represents a constant declaration
-    """
-    name: str
-    value: int
-
-class Assignment(NamedTuple):
-    name: str
-    expr: Expression
-
-class Call(NamedTuple):
-    name: str
-
-class Begin(NamedTuple):
-    statements: List[Statement]
-
-
-
-def main():
-    test_program =
-    """
+    var i, s;
+    begin
+    i := 0; s := 0;
+    while i < 5 do
+    begin
+        i := i + 1;
+        s := s + i * i
+    end
+    end.
     """
     lexer = Lexer(test_program)
     while not lexer.eof:
         print(lexer.next())
 
 if __name__ == '__main__':
-    main()
+    test_lexer()
