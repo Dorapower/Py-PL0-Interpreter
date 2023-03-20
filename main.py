@@ -64,6 +64,9 @@ class Token:
     def __str__(self):
         return f'Token({self.type}, {self.value})'
 
+    def __eq__(self, other):
+        return self.type == other.type and self.value == other.value
+
 
 class Lexer:
     _i: int
@@ -412,10 +415,11 @@ class Parser:
         Parses a begin statement
         """
         body = []
+        body.append(self.statement())
         while not self.check(Token.keyword('end')):
-            body.append(self.statement())
             if not self.check(Token.op(';')):
                 raise SyntaxError('Expected ";"')
+            body.append(self.statement())
         return Begin(body)
 
     def if_statement(self) -> If:
