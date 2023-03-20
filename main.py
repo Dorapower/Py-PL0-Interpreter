@@ -2,36 +2,35 @@
 # This file implements a parser for PL/0 source code.
 from __future__ import annotations
 
-from enum import IntEnum
-from enum import StrEnum
+from enum import Enum, StrEnum, auto
 from typing import NamedTuple
 import string
 
 
-class TokenType(IntEnum):
-    Op = 0
-    Number = 1
-    Name = 2
-    Keyword = 3
-    EOF = 4
+class TokenType(Enum):
+    Op = auto()
+    Number = auto()
+    Name = auto()
+    Keyword = auto()
+    EOF = auto()
 
 
 VALID_IDENTIFIER_STARTS: str = string.ascii_letters + '_'
-VALID_IDENTIFIERS: str = string.ascii_letters + string.digits + '_'
+VALID_IDENTIFIER_CONTINUES: str = string.ascii_letters + string.digits + '_'
 
 
 class Keyword(StrEnum):
-    Begin = 'begin'
-    Call = 'call'
-    Const = 'const'
-    Do = 'do'
-    End = 'end'
-    If = 'if'
-    Odd = 'odd'
-    Procedure = 'procedure'
-    Then = 'then'
-    Var = 'var'
-    While = 'while'
+    BEGIN = 'begin'
+    CALL = 'call'
+    CONST = 'const'
+    DO = 'do'
+    END = 'end'
+    IF = 'if'
+    ODD = 'odd'
+    PROCEDURE = 'procedure'
+    THEN = 'then'
+    VAR = 'var'
+    WHILE = 'while'
 
 
 class Token:
@@ -102,9 +101,10 @@ class Lexer:
 
         # Check for identifier and keyword
         if self._s[self._i] in VALID_IDENTIFIER_STARTS:
-            while not self.eof and self._s[self._i] in VALID_IDENTIFIERS:
+            while not self.eof and self._s[self._i] in VALID_IDENTIFIER_CONTINUES:
                 val += self._s[self._i]
                 self._i += 1
+            # Until python 3.12, we can't check for member values in enums
             for keyword in Keyword:
                 if val == keyword.value:
                     return Token.keyword(val)
