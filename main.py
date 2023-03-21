@@ -64,27 +64,23 @@ class Call(ASTNode):
     name: str
 
 
-class OddCondition(ASTNode):
+Condition: TypeAlias = NamedTuple
+
+
+class OddCondition(Condition):
     """
     Represents an odd statement
     """
     expr: Expression
 
 
-class ComparisonCondition(ASTNode):
+class ComparisonCondition(Condition):
     """
     Represents a comparison condition
     """
     op: str
     lhs: Expression
     rhs: Expression
-
-
-class Condition(ASTNode):
-    """
-    Represents a condition
-    """
-    condition: OddCondition | ComparisonCondition
 
 
 class If(ASTNode):
@@ -311,9 +307,9 @@ class Parser:
         Parses a condition
         """
         if self.check(Token.keyword('odd')):
-            return Condition(self.odd())
+            return self.odd()
         else:
-            return Condition(self.comparison())
+            return self.comparison()
 
     def odd(self) -> OddCondition:
         """
