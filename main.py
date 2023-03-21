@@ -2,148 +2,10 @@
 # This file implements a parser for PL/0 source code.
 from __future__ import annotations
 
-from enum import Enum, StrEnum, auto
 from typing import NamedTuple
-import string
 
+from lexer import Token, TokenType, Lexer
 
-class TokenType(Enum):
-    Op = auto()
-    Number = auto()
-    Name = auto()
-    Keyword = auto()
-    EOF = auto()
-
-
-VALID_IDENTIFIER_STARTS: str = string.ascii_letters + '_'
-VALID_IDENTIFIER_CONTINUES: str = string.ascii_letters + string.digits + '_'
-
-
-class Keyword(StrEnum):
-    BEGIN = 'begin'
-    CALL = 'call'
-    CONST = 'const'
-    DO = 'do'
-    END = 'end'
-    IF = 'if'
-    ODD = 'odd'
-    PROCEDURE = 'procedure'
-    THEN = 'then'
-    VAR = 'var'
-    WHILE = 'while'
-
-
-class Token:
-    Type: TokenType
-    Value: str | int
-
-    def __init__(self, token_type: TokenType, value: str | int):
-        self.type = token_type
-        self.value = value
-
-    @staticmethod
-    def op(op: str):
-        return Token(TokenType.Op, op)
-
-    @staticmethod
-    def number(number: int):
-        return Token(TokenType.Number, number)
-
-    @staticmethod
-    def name(name: str = ''):
-        return Token(TokenType.Name, name)
-
-    @staticmethod
-    def keyword(keyword: str):
-        return Token(TokenType.Keyword, keyword)
-
-    @staticmethod
-    def eof():
-        return Token(TokenType.EOF, 0)
-
-    def __str__(self):
-        return f'Token({self.type}, {self.value})'
-
-    def __eq__(self, other):
-        return self.type == other.type and self.value == other.value
-
-
-class Lexer:
-    _i: int
-    _s: str
-
-    def __init__(self, s: str):
-        self._s = s
-        self._i = 0
-
-    @property
-    def eof(self) -> bool:
-        return self._i >= len(self._s)
-
-    def _skip_whitespace(self):
-        while not self.eof and self._s[self._i].isspace():
-            self._i += 1
-
-    def next(self) -> Token:
-        val = ''
-        self._skip_whitespace()
-
-        # Check for EOF
-        if self.eof:
-            return Token.eof()
-
-        # Check for number
-        if self._s[self._i].isdigit():
-            while not self.eof and self._s[self._i].isdigit():
-                val += self._s[self._i]
-                self._i += 1
-            return Token.number(int(val))
-
-        # Check for identifier and keyword
-        if self._s[self._i] in VALID_IDENTIFIER_STARTS:
-            while not self.eof and self._s[self._i] in VALID_IDENTIFIER_CONTINUES:
-                val += self._s[self._i]
-                self._i += 1
-            # Until python 3.12, we can't check for member values in enums
-            for keyword in Keyword:
-                if val == keyword.value:
-                    return Token.keyword(val)
-            else:
-                return Token.name(val)
-
-        # Check for single character operator
-        if self._s[self._i] in '=#*+-/,;.()':
-            val = self._s[self._i]
-            self._i += 1
-            return Token.op(val)
-
-        # Check for assignment operator
-        if self._s[self._i] == ':':
-            self._i += 1
-            if self._s[self._i] == '=':
-                self._i += 1
-                return Token.op(':=')
-            else:
-                raise SyntaxError('Invalid token')
-
-        # Check for comparison operators
-        if self._s[self._i] in '<>':
-            val = self._s[self._i]
-            self._i += 1
-            if self._s[self._i] == '=':
-                val += '='
-                self._i += 1
-            return Token.op(val)
-
-        # Invalid token
-        raise SyntaxError('Invalid token')
-
-    @property
-    def i(self):
-        return self._i
-
-
-# TODO: Separate AST into its own file
 
 class Factor(NamedTuple):
     """
@@ -288,14 +150,14 @@ class Parser:
         """
         Checks if the next token is the given token, and if so, consumes it
         """
-        cur = self.lx.i
-        next_token = self.lx.next()
+        next_token = self.lx.peek()
         if next_token == token:
+            self.lx.next()
             return True
         # if the next_token is a name, we don't need to check the value
         if next_token.type == TokenType.Name and token.type == TokenType.Name:
+            self.lx.next()
             return True
-        self.lx._i = cur
         return False
 
     def program(self) -> Program:
@@ -535,35 +397,16 @@ class Parser:
             return Factor(self.name_or_number())
 
 
-def test_lexer():
-    test_program = \
-        """
-    var i, s;
-    begin
-    i := 0; s := 0;
-    while i < 5 do
-    begin
-        i := i + 1;
-        s := s + i * i
-    end
-    end.
-    """
-    lexer = Lexer(test_program)
-    while not lexer.eof:
-        print(lexer.next())
-
-
-def test_parser():
-    test_program = \
-        """
-        var if_i;
-        begin
-            if_i := -5 + 1
-        end.
-        """
-    parser = Parser(Lexer(test_program))
-    print(parser.program())
+def main():
+    import sys
+    print("Enter a program:\n")
+    program = sys.stdin.read()
+    parser = Parser(Lexer(program))
+    try:
+        print(parser.program())
+    except SyntaxError as e:
+        print(e)
 
 
 if __name__ == '__main__':
-    test_parser()
+    main()
