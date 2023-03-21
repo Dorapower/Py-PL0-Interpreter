@@ -390,7 +390,7 @@ class Parser:
 
 def main():
     import sys
-    print("Enter a program:\n")
+    print("Enter a program:")
     program = sys.stdin.read()
     parser = Parser(Lexer(program))
     try:

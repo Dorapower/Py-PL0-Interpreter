@@ -140,7 +140,7 @@ class Lexer:
 
 def main():
     import sys
-    print('Enter a program:\n')
+    print('Enter a program:')
     src = sys.stdin.read()
     lexer = Lexer(src)
     while not lexer.eof:
