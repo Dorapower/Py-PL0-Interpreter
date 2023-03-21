@@ -2,7 +2,6 @@
 # This file implements a parser for PL/0 source code.
 from __future__ import annotations
 
-from enum import Enum, StrEnum, auto
 from typing import NamedTuple
 
 from lexer import Token, TokenType, Lexer
@@ -151,14 +150,14 @@ class Parser:
         """
         Checks if the next token is the given token, and if so, consumes it
         """
-        cur = self.lx.i
-        next_token = self.lx.next()
+        next_token = self.lx.peek()
         if next_token == token:
+            self.lx.next()
             return True
         # if the next_token is a name, we don't need to check the value
         if next_token.type == TokenType.Name and token.type == TokenType.Name:
+            self.lx.next()
             return True
-        self.lx._i = cur
         return False
 
     def program(self) -> Program:
@@ -398,35 +397,16 @@ class Parser:
             return Factor(self.name_or_number())
 
 
-def test_lexer():
-    test_program = \
-        """
-    var i, s;
-    begin
-    i := 0; s := 0;
-    while i < 5 do
-    begin
-        i := i + 1;
-        s := s + i * i
-    end
-    end.
-    """
-    lexer = Lexer(test_program)
-    while not lexer.eof:
-        print(lexer.next())
-
-
-def test_parser():
-    test_program = \
-        """
-        var if_i;
-        begin
-            if_i := -5 + 1
-        end.
-        """
-    parser = Parser(Lexer(test_program))
-    print(parser.program())
+def main():
+    import sys
+    print("Enter a program:\n")
+    program = sys.stdin.read()
+    parser = Parser(Lexer(program))
+    try:
+        print(parser.program())
+    except SyntaxError as e:
+        print(e)
 
 
 if __name__ == '__main__':
-    test_parser()
+    main()
