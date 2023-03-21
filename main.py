@@ -159,16 +159,16 @@ class Parser:
             return True
         return False
 
-    def program(self) -> Program:
+    def parse_program(self) -> Program:
         """
         Parses a program
         """
-        block = self.block()
+        block = self.parse_block()
         if not self.check(Token.op('.')):
             raise SyntaxError('Expected "."')
         return Program(block)
 
-    def block(self) -> Block:
+    def parse_block(self) -> Block:
         """
         Parses a block
         """
@@ -176,24 +176,24 @@ class Parser:
         variables = []
         procs = []
         if self.check(Token.keyword('const')):
-            consts = self.consts()
+            consts = self.parse_constants()
         if self.check(Token.keyword('var')):
-            variables = self.vars()
+            variables = self.parse_variables()
         while self.check(Token.keyword('procedure')):
-            procs.append(self.procedure())
-        stmt = self.statement()
+            procs.append(self.parse_procedure())
+        stmt = self.parse_statement()
         return Block(consts, variables, procs, stmt)
 
-    def consts(self) -> list[Const]:
+    def parse_constants(self) -> list[Const]:
         """
         Parses a list of constants
         """
         consts = []
         while True:
-            name = self.name()
+            name = self.parse_name()
             if not self.check(Token.op('=')):
                 raise SyntaxError('Expected "="')
-            value = self.number()
+            value = self.parse_number()
             consts.append(Const(name, value))
             if not self.check(Token.op(',')):
                 break
@@ -201,13 +201,13 @@ class Parser:
             raise SyntaxError('Expected ";"')
         return consts
 
-    def vars(self) -> list[Var]:
+    def parse_variables(self) -> list[Var]:
         """
         Parses a list of variables
         """
         variables = []
         while True:
-            name = self.name()
+            name = self.parse_name()
             variables.append(Var(name))
             if not self.check(Token.op(',')):
                 break
@@ -215,7 +215,7 @@ class Parser:
             raise SyntaxError('Expected ";"')
         return variables
 
-    def name(self) -> str:
+    def parse_name(self) -> str:
         """
         Parses a name
         """
@@ -224,7 +224,7 @@ class Parser:
             raise SyntaxError('Expected name')
         return ident.value
 
-    def number(self) -> int:
+    def parse_number(self) -> int:
         """
         Parses a number
         """
@@ -233,7 +233,7 @@ class Parser:
             raise SyntaxError('Expected number')
         return num.value
 
-    def name_or_number(self) -> str | int:
+    def parse_name_or_number(self) -> str | int:
         """
         Parses a name or number
         """
@@ -244,109 +244,109 @@ class Parser:
             return ident.value
         raise SyntaxError('Expected name or number')
 
-    def procedure(self) -> Procedure:
+    def parse_procedure(self) -> Procedure:
         """
         Parses a procedure
         """
-        ident = self.name()
+        ident = self.parse_name()
         if not self.check(Token.op(';')):
             raise SyntaxError('Expected ";"')
-        block = self.block()
+        block = self.parse_block()
         if not self.check(Token.op(';')):
             raise SyntaxError('Expected ";"')
         return Procedure(ident, block)
 
-    def statement(self) -> Statement:
+    def parse_statement(self) -> Statement:
         """
         Parses a statement
         """
         if self.check(Token.keyword('begin')):
-            return Statement(self.begin())
+            return Statement(self.parse_begin_statement())
         elif self.check(Token.keyword('if')):
-            return Statement(self.if_statement())
+            return Statement(self.parse_if_statement())
         elif self.check(Token.keyword('while')):
-            return Statement(self.while_statement())
+            return Statement(self.parse_while_statement())
         elif self.check(Token.keyword('call')):
-            return Statement(self.call())
+            return Statement(self.parse_call_statement())
         else:
-            return Statement(self.assignment())
+            return Statement(self.parse_assignment_statement())
 
-    def begin(self) -> Begin:
+    def parse_begin_statement(self) -> Begin:
         """
         Parses a begin statement
         """
-        body = [self.statement()]
+        body = [self.parse_statement()]
         while not self.check(Token.keyword('end')):
             if not self.check(Token.op(';')):
                 raise SyntaxError('Expected ";"')
-            body.append(self.statement())
+            body.append(self.parse_statement())
         return Begin(body)
 
-    def if_statement(self) -> If:
+    def parse_if_statement(self) -> If:
         """
         Parses an if statement
         """
-        cond = self.condition()
+        cond = self.parse_condition()
         if not self.check(Token.keyword('then')):
             raise SyntaxError('Expected "then"')
-        stmt = self.statement()
+        stmt = self.parse_statement()
         return If(cond, stmt)
 
-    def while_statement(self) -> While:
+    def parse_while_statement(self) -> While:
         """
         Parses a while statement
         """
-        cond = self.condition()
+        cond = self.parse_condition()
         if not self.check(Token.keyword('do')):
             raise SyntaxError('Expected "do"')
-        stmt = self.statement()
+        stmt = self.parse_statement()
         return While(cond, stmt)
 
-    def condition(self) -> Condition:
+    def parse_condition(self) -> Condition:
         """
         Parses a condition
         """
         if self.check(Token.keyword('odd')):
-            return self.odd()
+            return self.parse_odd_condition()
         else:
-            return self.comparison()
+            return self.parse_comparison_condition()
 
-    def odd(self) -> OddCondition:
+    def parse_odd_condition(self) -> OddCondition:
         """
         Parses an odd statement
         """
-        expr = self.expression()
+        expr = self.parse_expression()
         return OddCondition(expr)
 
-    def comparison(self) -> ComparisonCondition:
+    def parse_comparison_condition(self) -> ComparisonCondition:
         """
         Parses a comparison
         """
-        left = self.expression()
+        left = self.parse_expression()
         op = self.lx.next()
         if op.type != TokenType.Op:
             raise SyntaxError('Expected operator')
-        right = self.expression()
+        right = self.parse_expression()
         return ComparisonCondition(op.value, left, right)
 
-    def call(self) -> Call:
+    def parse_call_statement(self) -> Call:
         """
         Parses a call statement
         """
-        ident = self.name()
+        ident = self.parse_name()
         return Call(ident)
 
-    def assignment(self) -> Assignment:
+    def parse_assignment_statement(self) -> Assignment:
         """
         Parses an assignment statement
         """
-        ident = self.name()
+        ident = self.parse_name()
         if not self.check(Token.op(':=')):
             raise SyntaxError('Expected ":="')
-        expr = self.expression()
+        expr = self.parse_expression()
         return Assignment(ident, expr)
 
-    def expression(self) -> Expression:
+    def parse_expression(self) -> Expression:
         """
         Parses an expression
         """
@@ -356,7 +356,7 @@ class Parser:
             prefix = '+'
         elif self.check(Token.op('-')):
             prefix = '-'
-        terms.append(self.term())
+        terms.append(self.parse_term())
         while True:
             if self.check(Token.op('+')):
                 ops.append('+')
@@ -364,15 +364,15 @@ class Parser:
                 ops.append('-')
             else:
                 break
-            terms.append(self.term())
+            terms.append(self.parse_term())
         return Expression(prefix, terms, ops)
 
-    def term(self) -> Term:
+    def parse_term(self) -> Term:
         """
         Parses a term
         """
         factors, ops = [], []
-        factors.append(self.factor())
+        factors.append(self.parse_factor())
         while True:
             if self.check(Token.op('*')):
                 ops.append('*')
@@ -380,20 +380,20 @@ class Parser:
                 ops.append('/')
             else:
                 break
-            factors.append(self.factor())
+            factors.append(self.parse_factor())
         return Term(factors, ops)
 
-    def factor(self) -> Factor:
+    def parse_factor(self) -> Factor:
         """
         Parses a factor
         """
         if self.check(Token.op('(')):
-            expr = self.expression()
+            expr = self.parse_expression()
             if not self.check(Token.op(')')):
                 raise SyntaxError('Expected ")"')
             return Factor(expr)
         else:
-            return Factor(self.name_or_number())
+            return Factor(self.parse_name_or_number())
 
 
 def main():
@@ -402,7 +402,7 @@ def main():
     program = sys.stdin.read()
     parser = Parser(Lexer(program))
     try:
-        print(parser.program())
+        print(parser.parse_program())
     except SyntaxError as e:
         print(e)
 
