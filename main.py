@@ -6,7 +6,6 @@ from typing import NamedTuple, TypeAlias
 
 from lexer import Token, TokenType, Lexer
 
-
 ASTNode: TypeAlias = NamedTuple
 
 
@@ -190,7 +189,7 @@ class Parser:
         """
         consts = []
         while True:
-            name = self.parse_name()
+            name = self.parse_identifier()
             if not self.check(Token.op('=')):
                 raise SyntaxError('Expected "="')
             value = self.parse_number()
@@ -207,7 +206,7 @@ class Parser:
         """
         variables = []
         while True:
-            name = self.parse_name()
+            name = self.parse_identifier()
             variables.append(Var(name))
             if not self.check(Token.op(',')):
                 break
@@ -215,9 +214,9 @@ class Parser:
             raise SyntaxError('Expected ";"')
         return variables
 
-    def parse_name(self) -> str:
+    def parse_identifier(self) -> str:
         """
-        Parses a name
+        Parses an identifier
         """
         ident = self.lx.next()
         if ident.type != TokenType.Name:
@@ -233,22 +232,11 @@ class Parser:
             raise SyntaxError('Expected number')
         return num.value
 
-    def parse_name_or_number(self) -> str | int:
-        """
-        Parses a name or number
-        """
-        ident = self.lx.next()
-        if ident.type == TokenType.Name:
-            return ident.value
-        elif ident.type == TokenType.Number:
-            return ident.value
-        raise SyntaxError('Expected name or number')
-
     def parse_procedure(self) -> Procedure:
         """
         Parses a procedure
         """
-        ident = self.parse_name()
+        ident = self.parse_identifier()
         if not self.check(Token.op(';')):
             raise SyntaxError('Expected ";"')
         block = self.parse_block()
@@ -333,14 +321,14 @@ class Parser:
         """
         Parses a call statement
         """
-        ident = self.parse_name()
+        ident = self.parse_identifier()
         return Call(ident)
 
     def parse_assignment_statement(self) -> Assignment:
         """
         Parses an assignment statement
         """
-        ident = self.parse_name()
+        ident = self.parse_identifier()
         if not self.check(Token.op(':=')):
             raise SyntaxError('Expected ":="')
         expr = self.parse_expression()
@@ -387,13 +375,17 @@ class Parser:
         """
         Parses a factor
         """
-        if self.check(Token.op('(')):
+        token = self.lx.peek()
+        if token == Token.op('('):
             expr = self.parse_expression()
             if not self.check(Token.op(')')):
                 raise SyntaxError('Expected ")"')
             return Factor(expr)
-        else:
-            return Factor(self.parse_name_or_number())
+        elif token.type == TokenType.Name:
+            return Factor(self.parse_identifier())
+        elif token.type == TokenType.Number:
+            return Factor(self.parse_number())
+        raise SyntaxError('Expected name or number')
 
 
 def main():
