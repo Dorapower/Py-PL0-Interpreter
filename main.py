@@ -2,19 +2,22 @@
 # This file implements a parser for PL/0 source code.
 from __future__ import annotations
 
-from typing import NamedTuple
+from typing import NamedTuple, TypeAlias
 
 from lexer import Token, TokenType, Lexer
 
 
-class Factor(NamedTuple):
+ASTNode: TypeAlias = NamedTuple
+
+
+class Factor(ASTNode):
     """
     Represents a factor in a term
     """
     value: int | str | Expression
 
 
-class Term(NamedTuple):
+class Term(ASTNode):
     """
     Represents a term in an expression
     """
@@ -22,7 +25,7 @@ class Term(NamedTuple):
     ops: list[str]
 
 
-class Expression(NamedTuple):
+class Expression(ASTNode):
     """
     Represents an expression
     """
@@ -31,7 +34,7 @@ class Expression(NamedTuple):
     ops: list[str]
 
 
-class Const(NamedTuple):
+class Const(ASTNode):
     """
     Represents a constant declaration
     """
@@ -39,14 +42,14 @@ class Const(NamedTuple):
     value: int
 
 
-class Var(NamedTuple):
+class Var(ASTNode):
     """
     Represents a variable declaration
     """
     name: str
 
 
-class Assignment(NamedTuple):
+class Assignment(ASTNode):
     """
     Represents an assignment statement
     """
@@ -54,21 +57,21 @@ class Assignment(NamedTuple):
     expr: Expression
 
 
-class Call(NamedTuple):
+class Call(ASTNode):
     """
     Represents a call statement
     """
     name: str
 
 
-class OddCondition(NamedTuple):
+class OddCondition(ASTNode):
     """
     Represents an odd statement
     """
     expr: Expression
 
 
-class ComparisonCondition(NamedTuple):
+class ComparisonCondition(ASTNode):
     """
     Represents a comparison condition
     """
@@ -77,14 +80,14 @@ class ComparisonCondition(NamedTuple):
     rhs: Expression
 
 
-class Condition(NamedTuple):
+class Condition(ASTNode):
     """
     Represents a condition
     """
     condition: OddCondition | ComparisonCondition
 
 
-class If(NamedTuple):
+class If(ASTNode):
     """
     Represents an if statement
     """
@@ -92,7 +95,7 @@ class If(NamedTuple):
     stmt: Statement
 
 
-class While(NamedTuple):
+class While(ASTNode):
     """
     Represents a while statement
     """
@@ -100,7 +103,7 @@ class While(NamedTuple):
     stmt: Statement
 
 
-class Begin(NamedTuple):
+class Begin(ASTNode):
     """
     Represents a begin statement
     """
@@ -108,14 +111,14 @@ class Begin(NamedTuple):
 
 
 # TODO: Add support for communication primitives
-class Statement(NamedTuple):
+class Statement(ASTNode):
     """
     Represents a statement
     """
     stmt: Assignment | Call | If | While | Begin
 
 
-class Block(NamedTuple):
+class Block(ASTNode):
     """
     Represents a block
     """
@@ -125,7 +128,7 @@ class Block(NamedTuple):
     stmt: Statement
 
 
-class Procedure(NamedTuple):
+class Procedure(ASTNode):
     """
     Represents a procedure
     """
@@ -133,7 +136,7 @@ class Procedure(NamedTuple):
     body: Block
 
 
-class Program(NamedTuple):
+class Program(ASTNode):
     """
     Represents a program
     """
