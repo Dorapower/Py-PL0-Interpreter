@@ -2,13 +2,20 @@
 # This file implements a parser for PL/0 source code.
 from __future__ import annotations
 
-from typing import NamedTuple, TypeAlias
+from dataclasses import dataclass
+from abc import ABC
 
 from lexer import Token, TokenType, Lexer
 
-ASTNode: TypeAlias = NamedTuple
+
+class ASTNode(ABC):
+    """
+    Represents a node in the AST
+    """
+    pass
 
 
+@dataclass(frozen=True)
 class Factor(ASTNode):
     """
     Represents a factor in a term
@@ -16,6 +23,7 @@ class Factor(ASTNode):
     value: int | str | Expression
 
 
+@dataclass(frozen=True)
 class Term(ASTNode):
     """
     Represents a term in an expression
@@ -24,6 +32,7 @@ class Term(ASTNode):
     ops: list[str]
 
 
+@dataclass(frozen=True)
 class Expression(ASTNode):
     """
     Represents an expression
@@ -33,6 +42,7 @@ class Expression(ASTNode):
     ops: list[str]
 
 
+@dataclass(frozen=True)
 class Const(ASTNode):
     """
     Represents a constant declaration
@@ -41,6 +51,7 @@ class Const(ASTNode):
     value: int
 
 
+@dataclass(frozen=True)
 class Var(ASTNode):
     """
     Represents a variable declaration
@@ -48,6 +59,7 @@ class Var(ASTNode):
     name: str
 
 
+@dataclass(frozen=True)
 class Assignment(ASTNode):
     """
     Represents an assignment statement
@@ -56,6 +68,7 @@ class Assignment(ASTNode):
     expr: Expression
 
 
+@dataclass(frozen=True)
 class Call(ASTNode):
     """
     Represents a call statement
@@ -63,9 +76,14 @@ class Call(ASTNode):
     name: str
 
 
-Condition: TypeAlias = NamedTuple
+class Condition(ASTNode):
+    """
+    Represents a condition
+    """
+    pass
 
 
+@dataclass(frozen=True)
 class OddCondition(Condition):
     """
     Represents an odd statement
@@ -73,6 +91,7 @@ class OddCondition(Condition):
     expr: Expression
 
 
+@dataclass(frozen=True)
 class ComparisonCondition(Condition):
     """
     Represents a comparison condition
@@ -82,6 +101,7 @@ class ComparisonCondition(Condition):
     rhs: Expression
 
 
+@dataclass(frozen=True)
 class If(ASTNode):
     """
     Represents an if statement
@@ -90,6 +110,7 @@ class If(ASTNode):
     stmt: Statement
 
 
+@dataclass(frozen=True)
 class While(ASTNode):
     """
     Represents a while statement
@@ -98,6 +119,7 @@ class While(ASTNode):
     stmt: Statement
 
 
+@dataclass(frozen=True)
 class Begin(ASTNode):
     """
     Represents a begin statement
@@ -106,6 +128,7 @@ class Begin(ASTNode):
 
 
 # TODO: Add support for communication primitives
+@dataclass(frozen=True)
 class Statement(ASTNode):
     """
     Represents a statement
@@ -113,6 +136,7 @@ class Statement(ASTNode):
     stmt: Assignment | Call | If | While | Begin
 
 
+@dataclass(frozen=True)
 class Block(ASTNode):
     """
     Represents a block
@@ -123,6 +147,7 @@ class Block(ASTNode):
     stmt: Statement
 
 
+@dataclass(frozen=True)
 class Procedure(ASTNode):
     """
     Represents a procedure
@@ -131,6 +156,7 @@ class Procedure(ASTNode):
     body: Block
 
 
+@dataclass(frozen=True)
 class Program(ASTNode):
     """
     Represents a program
