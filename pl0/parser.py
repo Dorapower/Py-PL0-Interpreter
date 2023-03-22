@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from abc import ABC
 
-from lexer import Token, TokenType, Lexer
+from pl0.lexer import Token, TokenType, Lexer
 
 
 class ASTNode(ABC):
@@ -183,6 +183,9 @@ class Parser:
             self.lx.next()
             return True
         return False
+
+    def parse(self) -> Program:
+        return self.parse_program()
 
     def parse_program(self) -> Program:
         """
