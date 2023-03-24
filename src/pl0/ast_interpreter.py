@@ -1,4 +1,4 @@
-from . import ast_node, symboltable
+import ast_node, symboltable
 
 
 class ASTInterpreter:
@@ -16,7 +16,10 @@ class ASTInterpreter:
         return self.stack[-1]
 
     def interpret(self):
-        ...
+        """
+        Interprets the AST
+        """
+        self.interpret_program(self.ast)
 
     def interpret_program(self, program: ast_node.Program):
         """
@@ -181,16 +184,14 @@ class ASTInterpreter:
 
 def main():
     import sys
-    from .parser import Parser
+    from parser import Parser
 
     print('Enter a program:')
     program = sys.stdin.read()
-    ast = Parser.parse(program)
+    ast = Parser(program).parse()
     interpreter = ASTInterpreter(ast, debug=True)
     interpreter.interpret()
 
 
 if __name__ == '__main__':
     main()
-
-

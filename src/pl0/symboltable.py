@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import StrEnum, auto
 
-from .ast_node import Procedure
+from ast_node import Procedure
 
 class SymbolType(StrEnum):
     CONST = auto()
