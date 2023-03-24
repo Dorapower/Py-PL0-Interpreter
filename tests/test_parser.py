@@ -1,7 +1,6 @@
-import pytest
 from typing import TypeAlias
 
-from context import parser as mod
+from src.pl0 import parser as mod
 
 Parser: TypeAlias = mod.Parser
 

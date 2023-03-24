@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from abc import ABC
 
-from pl0.lexer import Token, TokenType, Lexer
+from src.pl0.lexer import Token, TokenType, Lexer
 
 
 class ASTNode(ABC):
