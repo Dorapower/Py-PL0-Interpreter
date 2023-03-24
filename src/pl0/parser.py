@@ -11,8 +11,8 @@ from .lexer import Token, TokenType, Lexer
 class Parser:
     lx: Lexer
 
-    def __init__(self, lx: Lexer):
-        self.lx = lx
+    def __init__(self, program: str):
+        self.lx = Lexer(program)
 
     def check(self, token: Token) -> bool:
         """
@@ -265,7 +265,7 @@ def main():
     import sys
     print("Enter a program:")
     program = sys.stdin.read()
-    parser = Parser(Lexer(program))
+    parser = Parser(program)
     try:
         print(parser.parse())
     except SyntaxError as e:
