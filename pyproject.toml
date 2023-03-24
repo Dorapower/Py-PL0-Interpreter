@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pl_0_parser"
+version = "0.1.0"
+authors = [
+  { name="Lokdora", email="thatisluo@gmail.com" },
+]
+description = "A simple PL/0 parser"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Typing :: Typed",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Dorapower/Py-PL0-Parser"
+"Bug Tracker" = "https://github.com/Dorapower/Py-PL0-Parser/issues"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
