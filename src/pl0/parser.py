@@ -8,7 +8,6 @@ from .ast_node import Program, Block, Const, Procedure, Statement, \
 from .lexer import Token, TokenType, Lexer
 
 
-
 class Parser:
     lx: Lexer
 

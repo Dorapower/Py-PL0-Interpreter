@@ -43,7 +43,7 @@ class Const(ASTNode):
     """
     Represents a constant declaration
     """
-    name: str
+    ident: str
     value: int
 
 
@@ -52,7 +52,7 @@ class Var(ASTNode):
     """
     Represents a variable declaration
     """
-    name: str
+    ident: str
 
 
 @dataclass(frozen=True)
@@ -60,7 +60,7 @@ class Assignment(ASTNode):
     """
     Represents an assignment statement
     """
-    name: str
+    ident: str
     expr: Expression
 
 
@@ -69,7 +69,7 @@ class Call(ASTNode):
     """
     Represents a call statement
     """
-    name: str
+    ident: str
 
 
 class Condition(ASTNode):
