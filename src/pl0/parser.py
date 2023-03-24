@@ -2,166 +2,11 @@
 # This file implements a parser for PL/0 source code.
 from __future__ import annotations
 
-from dataclasses import dataclass
-from abc import ABC
+from .ast_node import Program, Block, Const, Procedure, Statement, \
+    Assignment, Call, If, While, Begin, Condition, Expression, Term, \
+    Factor, Var, OddCondition, ComparisonCondition
+from .lexer import Token, TokenType, Lexer
 
-from src.pl0.lexer import Token, TokenType, Lexer
-
-
-class ASTNode(ABC):
-    """
-    Represents a node in the AST
-    """
-    pass
-
-
-@dataclass(frozen=True)
-class Factor(ASTNode):
-    """
-    Represents a factor in a term
-    """
-    value: int | str | Expression
-
-
-@dataclass(frozen=True)
-class Term(ASTNode):
-    """
-    Represents a term in an expression
-    """
-    factors: list[Factor]
-    ops: list[str]
-
-
-@dataclass(frozen=True)
-class Expression(ASTNode):
-    """
-    Represents an expression
-    """
-    prefix: str
-    terms: list[Term]
-    ops: list[str]
-
-
-@dataclass(frozen=True)
-class Const(ASTNode):
-    """
-    Represents a constant declaration
-    """
-    name: str
-    value: int
-
-
-@dataclass(frozen=True)
-class Var(ASTNode):
-    """
-    Represents a variable declaration
-    """
-    name: str
-
-
-@dataclass(frozen=True)
-class Assignment(ASTNode):
-    """
-    Represents an assignment statement
-    """
-    name: str
-    expr: Expression
-
-
-@dataclass(frozen=True)
-class Call(ASTNode):
-    """
-    Represents a call statement
-    """
-    name: str
-
-
-class Condition(ASTNode):
-    """
-    Represents a condition
-    """
-    pass
-
-
-@dataclass(frozen=True)
-class OddCondition(Condition):
-    """
-    Represents an odd statement
-    """
-    expr: Expression
-
-
-@dataclass(frozen=True)
-class ComparisonCondition(Condition):
-    """
-    Represents a comparison condition
-    """
-    op: str
-    lhs: Expression
-    rhs: Expression
-
-
-@dataclass(frozen=True)
-class If(ASTNode):
-    """
-    Represents an if statement
-    """
-    cond: Condition
-    stmt: Statement
-
-
-@dataclass(frozen=True)
-class While(ASTNode):
-    """
-    Represents a while statement
-    """
-    cond: Condition
-    stmt: Statement
-
-
-@dataclass(frozen=True)
-class Begin(ASTNode):
-    """
-    Represents a begin statement
-    """
-    body: list[Statement]
-
-
-# TODO: Add support for communication primitives
-@dataclass(frozen=True)
-class Statement(ASTNode):
-    """
-    Represents a statement
-    """
-    stmt: Assignment | Call | If | While | Begin
-
-
-@dataclass(frozen=True)
-class Block(ASTNode):
-    """
-    Represents a block
-    """
-    consts: list[Const]
-    vars: list[Var]
-    procs: list[Procedure]
-    stmt: Statement
-
-
-@dataclass(frozen=True)
-class Procedure(ASTNode):
-    """
-    Represents a procedure
-    """
-    ident: str
-    body: Block
-
-
-@dataclass(frozen=True)
-class Program(ASTNode):
-    """
-    Represents a program
-    """
-    block: Block
 
 
 class Parser:
@@ -423,7 +268,7 @@ def main():
     program = sys.stdin.read()
     parser = Parser(Lexer(program))
     try:
-        print(parser.parse_program())
+        print(parser.parse())
     except SyntaxError as e:
         print(e)
 
