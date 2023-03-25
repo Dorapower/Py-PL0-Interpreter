@@ -40,7 +40,13 @@ class SymbolTable:
     def register_var(self, ident: str):
         self._register(Symbol(ident, SymbolType.VAR, None))
 
-    def register_proc(self, ident: str, proc: Procedure):
+    def register_proc(self, ident: str, proc: Procedure | int):
+        """
+        Registers a procedure in the symbol table
+        :param ident: The identifier of the procedure
+        :param proc: The procedure itself, or the address of the procedure
+        :raises ValueError: If the procedure already exists
+        """
         self._register(Symbol(ident, SymbolType.PROC, proc))
 
     def retrieve(self, ident: str) -> Symbol | None:
