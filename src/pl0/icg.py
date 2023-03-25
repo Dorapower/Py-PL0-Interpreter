@@ -54,7 +54,7 @@ class IR:
 
 class ICG:
     """
-    Intermediate code generator
+    Intermediate code generator, converts an AST to intermediate code
 
     The intermediate code is a list of IR objects
     """

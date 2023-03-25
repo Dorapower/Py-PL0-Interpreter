@@ -5,6 +5,12 @@ class ASTInterpreter:
     """
     Interprets an AST
     """
+    ast: ast_node.Program
+    stack: list[symboltable.SymbolTable]
+    # The reason I use a list is when an identifier is declared in a local scope,
+    # it should be removed when the scope is exited
+    debug: bool
+
     def __init__(self, ast: ast_node.Program, debug: bool = False):
         self.ast = ast
         self.stack: list[symboltable.SymbolTable] = []
