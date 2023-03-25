@@ -211,7 +211,7 @@ class Parser:
         """
         Parses an expression
         """
-        prefix = ''
+        prefix = None
         terms, ops = [], []
         if self.check(Token.op('+')):
             prefix = '+'

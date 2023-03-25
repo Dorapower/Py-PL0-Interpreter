@@ -33,7 +33,7 @@ class Expression(ASTNode):
     """
     Represents an expression
     """
-    prefix: str
+    prefix: str | None
     terms: list[Term]
     ops: list[str]
 
@@ -149,7 +149,7 @@ class Procedure(ASTNode):
     Represents a procedure
     """
     ident: str
-    body: Block
+    block: Block
 
 
 @dataclass(frozen=True)
