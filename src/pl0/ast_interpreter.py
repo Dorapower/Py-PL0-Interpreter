@@ -110,7 +110,7 @@ class ASTInterpreter:
             if result is not None:
                 break
         if result.type == symboltable.SymbolType.PROC:
-            return self.interpret_block(result.value.body)
+            return self.interpret_block(result.value.block)
         raise TypeError(f'Cannot call {call.ident} as it is not a procedure')
 
     def interpret_if(self, if_stmt: ast_node.If):
