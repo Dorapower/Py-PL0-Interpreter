@@ -1,6 +1,6 @@
 from typing import TypeAlias
 
-from src.pl0 import parser as mod
+from src.pl0 import src_parser as mod
 
 Parser: TypeAlias = mod.Parser
 

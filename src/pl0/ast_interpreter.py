@@ -184,7 +184,7 @@ class ASTInterpreter:
 
 def main():
     import sys
-    from parser import Parser
+    from src_parser import Parser
 
     print('Enter a program:')
     program = sys.stdin.read()

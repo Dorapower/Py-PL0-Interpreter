@@ -5,7 +5,7 @@ from __future__ import annotations
 from ast_node import Program, Block, Const, Procedure, Statement, \
     Assignment, Call, If, While, Begin, Condition, Expression, Term, \
     Factor, Var, OddCondition, ComparisonCondition
-from lexer import Token, TokenType, Lexer
+from src_lexer import Token, TokenType, Lexer
 
 
 class Parser:
