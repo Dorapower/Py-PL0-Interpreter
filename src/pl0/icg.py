@@ -45,6 +45,12 @@ class IR:
     opr: int | str | None = None  # could be a number, a variable name, or a target index in the IR list
     # The top value in the stack is used as the value for declaration, so value member is not needed
 
+    def __str__(self):
+        if self.opr is None:
+            return f"{self.op}"
+        else:
+            return f"{self.op:<6}{self.opr}"
+
 
 class ICG:
     """
@@ -207,7 +213,8 @@ class ICG:
             self.generate_expression(node.value)
 
     def __str__(self) -> str:
-        return f"ICG({self.buf})"
+        idx_width = len(str(len(self.buf)))
+        return 'ICG:\n' + '\n'.join(f'{i:{idx_width}d}: {elem}' for i, elem in enumerate(self.buf))
 
 
 def main():
@@ -221,7 +228,8 @@ def main():
 
     icg = ICG(ast)
     ir = icg.generate()
-    print(ir)
+    for idx, ic in enumerate(ir):
+        print(f'{idx:2d}: {ic}')
 
 
 if __name__ == "__main__":
