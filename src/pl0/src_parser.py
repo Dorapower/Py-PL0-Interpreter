@@ -250,6 +250,7 @@ class Parser:
         """
         token = self.lx.peek()
         if token == Token.op('('):
+            self.lx.next()
             expr = self.parse_expression()
             if not self.check(Token.op(')')):
                 raise SyntaxError('Expected ")"')
