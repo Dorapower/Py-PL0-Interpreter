@@ -15,6 +15,16 @@ class ASTInterpreter:
     def current_table(self) -> symboltable.SymbolTable:
         return self.stack[-1]
 
+    def retrieve(self, ident: str) -> symboltable.Symbol | None:
+        """
+        Retrieves a symbol from the symbol table, or None if it doesn't exist
+        """
+        for table in reversed(self.stack):
+            symbol = table.retrieve(ident)
+            if symbol is not None:
+                return symbol
+        return None
+
     def interpret(self):
         """
         Interprets the AST
@@ -80,16 +90,28 @@ class ASTInterpreter:
         """
         Interprets an assignment
         """
-        self.current_table.retrieve_var(assignment.ident).value = self.interpret_expression(assignment.expr)
+        ident = self.retrieve(assignment.ident)
+        if ident is None:
+            raise NameError(f'Cannot assign to {assignment.ident} as it is not defined')
+        if ident.type != symboltable.SymbolType.VAR:
+            raise TypeError(f'Cannot assign to {assignment.ident} as it is not a variable')
+        ident.assign(self.interpret_expression(assignment.expr))
         if self.debug:
-            print(f'Assigned {assignment.ident} to {self.current_table.retrieve_var(assignment.ident).value}')
+            print(f'Assigned {assignment.ident} to {ident.value}')
 
     def interpret_call(self, call: ast_node.Call):
         """
         Interprets a call
         """
-        proc = self.current_table.retrieve_proc(call.ident).value
-        self.interpret_block(proc.body)
+        result = None
+        # Search for the procedure in the stack
+        for table in reversed(self.stack):
+            result = table.retrieve(call.ident)
+            if result is not None:
+                break
+        if result.type == symboltable.SymbolType.PROC:
+            return self.interpret_block(result.value.body)
+        raise TypeError(f'Cannot call {call.ident} as it is not a procedure')
 
     def interpret_if(self, if_stmt: ast_node.If):
         """
@@ -173,13 +195,19 @@ class ASTInterpreter:
     def interpret_factor(self, factor: ast_node.Factor) -> int:
         """
         Interprets a factor
+        Note: parent scope will be searched for identifiers
         """
         if isinstance(factor.value, int):
             return factor.value
-        elif isinstance(factor.value, str):
-            return self.current_table.retrieve_var(factor.value).value
         elif isinstance(factor.value, ast_node.Expression):
             return self.interpret_expression(factor.value)
+        elif isinstance(factor.value, str):
+            result = None
+            for table in reversed(self.stack):
+                result = table.retrieve(factor.value)
+                if result is not None:  # identifier found
+                    break
+            return result.value
 
 
 def main():

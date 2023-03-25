@@ -3,6 +3,7 @@ from enum import StrEnum, auto
 
 from ast_node import Procedure
 
+
 class SymbolType(StrEnum):
     CONST = auto()
     VAR = auto()
@@ -14,6 +15,12 @@ class Symbol:
     ident: str
     type: SymbolType
     value: int | Procedure | None
+
+    def assign(self, value: int):
+        if self.type != SymbolType.VAR:
+            raise TypeError(f"Cannot assign to {self.ident} as it is not a variable")
+        self.value = value
+
 
 class SymbolTable:
     symbols: list[Symbol]
@@ -36,31 +43,14 @@ class SymbolTable:
     def register_proc(self, ident: str, proc: Procedure):
         self._register(Symbol(ident, SymbolType.PROC, proc))
 
-    def _retrieve(self, ident: str) -> Symbol:
+    def retrieve(self, ident: str) -> Symbol | None:
+        """
+        Retrieves a symbol from the symbol table, or None if it doesn't exist
+        """
         for symbol in self.symbols:
             if symbol.ident == ident:
-                if symbol.value is None:
-                    raise ValueError(f"Symbol {ident} has not been initialized")
                 return symbol
-        raise ValueError(f"Symbol {ident} has not been declared")
-
-    def retrieve_const(self, ident: str) -> Symbol:
-        symbol = self._retrieve(ident)
-        if symbol.type != SymbolType.CONST:
-            raise ValueError(f"Symbol {ident} is not a constant")
-        return symbol
-
-    def retrieve_var(self, ident: str) -> Symbol:
-        symbol = self._retrieve(ident)
-        if symbol.type != SymbolType.VAR:
-            raise ValueError(f"Symbol {ident} is not a variable")
-        return symbol
-
-    def retrieve_proc(self, ident: str) -> Symbol:
-        symbol = self._retrieve(ident)
-        if symbol.type != SymbolType.PROC:
-            raise ValueError(f"Symbol {ident} is not a procedure")
-        return symbol
+        return None
 
     def __str__(self):
         return f"SymbolTable({self.symbols})"
