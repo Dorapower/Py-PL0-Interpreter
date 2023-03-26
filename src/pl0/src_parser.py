@@ -10,9 +10,11 @@ from src_lexer import Token, TokenType, Lexer
 
 class Parser:
     lx: Lexer
+    debug: bool
 
-    def __init__(self, program: str):
+    def __init__(self, program: str, /, *, debug: bool = False):
         self.lx = Lexer(program)
+        self.debug = debug
 
     def check(self, token: Token) -> bool:
         """
@@ -29,12 +31,17 @@ class Parser:
         return False
 
     def parse(self) -> Program:
+        """
+        Parses a program, identical to parse_program()
+        """
         return self.parse_program()
 
     def parse_program(self) -> Program:
         """
         Parses a program
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_program(): Parsing program')
         block = self.parse_block()
         if not self.check(Token.op('.')):
             raise SyntaxError('Expected "."')
@@ -44,6 +51,8 @@ class Parser:
         """
         Parses a block
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_block(): Parsing block')
         consts = []
         variables = []
         procs = []
@@ -60,12 +69,16 @@ class Parser:
         """
         Parses a list of constants
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_constants(): Parsing constants')
         consts = []
         while True:
             name = self.parse_identifier()
             if not self.check(Token.op('=')):
                 raise SyntaxError('Expected "="')
             value = self.parse_number()
+            if self.debug:
+                print(f'<DEBUG> Parser.parse_constants(): Parsed constant {name} = {value}')
             consts.append(Const(name, value))
             if not self.check(Token.op(',')):
                 break
@@ -77,9 +90,13 @@ class Parser:
         """
         Parses a list of variables
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_variables(): Parsing variables')
         variables = []
         while True:
             name = self.parse_identifier()
+            if self.debug:
+                print(f'<DEBUG> Parser.parse_variables(): Parsed variable {name}')
             variables.append(Var(name))
             if not self.check(Token.op(',')):
                 break
@@ -91,24 +108,34 @@ class Parser:
         """
         Parses an identifier
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_identifier(): Parsing identifier')
         ident = self.lx.next()
         if ident.type != TokenType.Name:
             raise SyntaxError('Expected name')
+        if self.debug:
+            print(f'<DEBUG> Parser.parse_identifier(): Parsed identifier {ident.value}')
         return ident.value
 
     def parse_number(self) -> int:
         """
         Parses a number
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_number(): Parsing number')
         num = self.lx.next()
         if num.type != TokenType.Number:
             raise SyntaxError('Expected number')
+        if self.debug:
+            print(f'<DEBUG> Parser.parse_number(): Parsed number {num.value}')
         return num.value
 
     def parse_procedure(self) -> Procedure:
         """
         Parses a procedure
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_procedure(): Parsing procedure')
         ident = self.parse_identifier()
         if not self.check(Token.op(';')):
             raise SyntaxError('Expected ";"')
@@ -121,6 +148,8 @@ class Parser:
         """
         Parses a statement
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_statement(): Parsing statement')
         if self.check(Token.keyword('begin')):
             return Statement(self.parse_begin_statement())
         elif self.check(Token.keyword('if')):
@@ -140,6 +169,8 @@ class Parser:
         """
         Parses a begin statement
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_begin_statement(): Parsing begin statement')
         body = [self.parse_statement()]
         while not self.check(Token.keyword('end')):
             if not self.check(Token.op(';')):
@@ -151,6 +182,8 @@ class Parser:
         """
         Parses an if statement
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_if_statement(): Parsing if statement')
         cond = self.parse_condition()
         if not self.check(Token.keyword('then')):
             raise SyntaxError('Expected "then"')
@@ -161,6 +194,8 @@ class Parser:
         """
         Parses a while statement
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_while_statement(): Parsing while statement')
         cond = self.parse_condition()
         if not self.check(Token.keyword('do')):
             raise SyntaxError('Expected "do"')
@@ -171,6 +206,8 @@ class Parser:
         """
         Parses a condition
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_condition(): Parsing condition')
         if self.check(Token.keyword('odd')):
             return self.parse_odd_condition()
         else:
@@ -180,6 +217,8 @@ class Parser:
         """
         Parses an odd statement
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_odd_condition(): Parsing odd condition')
         expr = self.parse_expression()
         return OddCondition(expr)
 
@@ -187,6 +226,8 @@ class Parser:
         """
         Parses a comparison
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_comparison_condition(): Parsing comparison condition')
         left = self.parse_expression()
         op = self.lx.next()
         if op.type != TokenType.Op:
@@ -198,6 +239,8 @@ class Parser:
         """
         Parses a call statement
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_call_statement(): Parsing call statement')
         ident = self.parse_identifier()
         return Call(ident)
 
@@ -205,6 +248,8 @@ class Parser:
         """
         Parses a read statement
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_read_statement(): Parsing read statement')
         ident = self.parse_identifier()
         return Read(ident)
 
@@ -212,6 +257,8 @@ class Parser:
         """
         Parses a write statement
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_write_statement(): Parsing write statement')
         expr = self.parse_expression()
         return Write(expr)
 
@@ -219,6 +266,8 @@ class Parser:
         """
         Parses an assignment statement
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_assignment_statement(): Parsing assignment statement')
         ident = self.parse_identifier()
         if not self.check(Token.op(':=')):
             raise SyntaxError('Expected ":="')
@@ -229,6 +278,8 @@ class Parser:
         """
         Parses an expression
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_expression(): Parsing expression')
         prefix = None
         terms, ops = [], []
         if self.check(Token.op('+')):
@@ -250,6 +301,8 @@ class Parser:
         """
         Parses a term
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_term(): Parsing term')
         factors, ops = [], []
         factors.append(self.parse_factor())
         while True:
@@ -266,12 +319,16 @@ class Parser:
         """
         Parses a factor
         """
+        if self.debug:
+            print('<DEBUG> Parser.parse_factor(): Parsing factor')
         token = self.lx.peek()
         if token == Token.op('('):
             self.lx.next()
             expr = self.parse_expression()
             if not self.check(Token.op(')')):
                 raise SyntaxError('Expected ")"')
+            if self.debug:
+                print('<DEBUG> Parser.parse_factor(): Parsed parenthesized expression')
             return Factor(expr)
         elif token.type == TokenType.Name:
             return Factor(self.parse_identifier())
@@ -282,13 +339,13 @@ class Parser:
 
 def main():
     import sys
-    print("Enter a program:")
-    program = sys.stdin.read()
-    parser = Parser(program)
-    try:
-        print(parser.parse())
-    except SyntaxError as e:
-        print(e)
+    if len(sys.argv) != 2:
+        print('Usage: python3.11 src_parser.py <path-to-file>')
+        return
+    with open(sys.argv[1]) as f:
+        src = f.read()
+    parser = Parser(src, debug=True)
+    print(parser.parse())
 
 
 if __name__ == '__main__':

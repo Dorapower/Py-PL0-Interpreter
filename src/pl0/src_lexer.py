@@ -67,12 +67,14 @@ class Lexer:
     _s: str
     _length: int
     _current: Token
+    debug: bool
 
-    def __init__(self, s: str, /) -> None:
+    def __init__(self, s: str, /, *, debug=False) -> None:
         self._i = 0
         self._s = s
         self._length = len(s)
         self._current = self._next()
+        self.debug = debug
 
     @property
     def eof(self):
@@ -129,6 +131,8 @@ class Lexer:
         """
         token = self._current
         self._current = self._next()
+        if self.debug:
+            print(f'<DEBUG> Lexer.next(): {token}')
         return token
 
     def peek(self):
@@ -140,9 +144,12 @@ class Lexer:
 
 def main():
     import sys
-    print('Enter a program:')
-    src = sys.stdin.read()
-    lexer = Lexer(src)
+    if len(sys.argv) != 2:
+        print('Usage: python3.11 src_lexer.py <path-to-file>')
+        sys.exit(1)
+    with open(sys.argv[1]) as f:
+        src = f.read()
+    lexer = Lexer(src, debug=True)
     while not lexer.eof:
         print(lexer.next())
 

@@ -9,12 +9,14 @@ class ICInterpreter:
     pc: int  # program counter
     stack: list[int]  # contains values
     env: list[symboltable.SymbolTable]  # contains variables
+    debug: bool
 
-    def __init__(self, ic):
+    def __init__(self, ic, /, *, debug=False):
         self.ic = ic
         self.pc = 0
         self.stack = []
         self.env = [symboltable.SymbolTable()]  # global scope
+        self.debug = debug
 
     @property
     def current_ir(self) -> icg.IR:
@@ -80,6 +82,8 @@ class ICInterpreter:
                     if ident is None:
                         raise Exception(f"Ident {ir.opr} is not defined")
                     ident.value = self.stack.pop()
+                    if self.debug:
+                        print(f"<DEBUG> Assign {ir.opr} to {ident.value}")
                 case IROp.LIT:
                     self.stack.append(ir.opr)
                 case IROp.CALL:
@@ -116,15 +120,18 @@ def main():
 
     import src_parser
 
-    print("Enter a program:")
-    program = sys.stdin.read()
-    parser = src_parser.Parser(program)
+    if len(sys.argv) < 2:
+        print("Usage: python3.11 ic_interpreter.py <path-to-file>")
+        return
+    with open(sys.argv[1], "r") as f:
+        src = f.read()
+    parser = src_parser.Parser(src)
     ast = parser.parse()
 
     generator = icg.ICG(ast)
     ic = generator.generate()
 
-    vm = ICInterpreter(ic)
+    vm = ICInterpreter(ic, debug=True)
     vm.run()
 
 
