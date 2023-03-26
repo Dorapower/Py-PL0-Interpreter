@@ -89,6 +89,10 @@ class ASTInterpreter:
             self.interpret_while(stmt.stmt)
         elif isinstance(stmt.stmt, ast_node.Begin):
             self.interpret_begin(stmt.stmt)
+        elif isinstance(stmt.stmt, ast_node.Read):
+            self.interpret_read(stmt.stmt)
+        elif isinstance(stmt.stmt, ast_node.Write):
+            self.interpret_write(stmt.stmt)
         else:
             raise TypeError('Unknown statement type')
 
@@ -139,6 +143,25 @@ class ASTInterpreter:
         """
         for stmt in begin_stmt.body:
             self.interpret_statement(stmt)
+
+    def interpret_read(self, read_stmt: ast_node.Read):
+        """
+        Interprets a read statement
+        """
+        ident = self.retrieve(read_stmt.ident)
+        if ident is None:
+            raise NameError(f'Cannot assign to {read_stmt.ident} as it is not defined')
+        if ident.type != symboltable.SymbolType.VAR:
+            raise TypeError(f'Cannot assign to {read_stmt.ident} as it is not a variable')
+        ident.assign(int(input(f'Enter a value for {read_stmt.ident}: ')))
+        if self.debug:
+            print(f'Read {read_stmt.ident} to {ident.value}')
+
+    def interpret_write(self, write_stmt: ast_node.Write):
+        """
+        Interprets a write statement
+        """
+        print(self.interpret_expression(write_stmt.expr))
 
     def interpret_condition(self, cond: ast_node.Condition) -> bool:
         """

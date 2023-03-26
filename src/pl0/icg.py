@@ -110,7 +110,10 @@ class ICG:
             self.generate_while(stmt)
         elif isinstance(stmt, ast_node.Begin):
             self.generate_begin(stmt)
-        # TODO: implement Read and Write
+        elif isinstance(stmt, ast_node.Read):
+            self.generate_read(stmt)
+        elif isinstance(stmt, ast_node.Write):
+            self.generate_write(stmt)
         else:
             raise NotImplementedError(f"Statement {stmt} not implemented")
 
@@ -143,6 +146,14 @@ class ICG:
     def generate_begin(self, node: ast_node.Begin):
         for stmt in node.body:
             self.generate_statement(stmt)
+
+    def generate_read(self, node: ast_node.Read):
+        self.buf.append(IR(IROp.INPUT))
+        self.buf.append(IR(IROp.STORE, node.ident))
+
+    def generate_write(self, node: ast_node.Write):
+        self.generate_expression(node.expr)
+        self.buf.append(IR(IROp.OUTPUT))
 
     def generate_condition(self, node: ast_node.Condition):
         if isinstance(node, ast_node.OddCondition):

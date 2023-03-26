@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from ast_node import Program, Block, Const, Procedure, Statement, \
     Assignment, Call, If, While, Begin, Condition, Expression, Term, \
-    Factor, Var, OddCondition, ComparisonCondition
+    Factor, Var, OddCondition, ComparisonCondition, Read, Write
 from src_lexer import Token, TokenType, Lexer
 
 
@@ -129,6 +129,10 @@ class Parser:
             return Statement(self.parse_while_statement())
         elif self.check(Token.keyword('call')):
             return Statement(self.parse_call_statement())
+        elif self.check(Token.op('?')):
+            return Statement(self.parse_read_statement())
+        elif self.check(Token.op('!')):
+            return Statement(self.parse_write_statement())
         else:
             return Statement(self.parse_assignment_statement())
 
@@ -196,6 +200,20 @@ class Parser:
         """
         ident = self.parse_identifier()
         return Call(ident)
+
+    def parse_read_statement(self) -> Read:
+        """
+        Parses a read statement
+        """
+        ident = self.parse_identifier()
+        return Read(ident)
+
+    def parse_write_statement(self) -> Write:
+        """
+        Parses a write statement
+        """
+        expr = self.parse_expression()
+        return Write(expr)
 
     def parse_assignment_statement(self) -> Assignment:
         """

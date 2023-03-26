@@ -72,6 +72,22 @@ class Call(ASTNode):
     ident: str
 
 
+@dataclass(frozen=True)
+class Read(ASTNode):
+    """
+    Represents a read statement
+    """
+    ident: str
+
+
+@dataclass(frozen=True)
+class Write(ASTNode):
+    """
+    Represents a write statement
+    """
+    expr: Expression
+
+
 class Condition(ASTNode):
     """
     Represents a condition
@@ -123,13 +139,12 @@ class Begin(ASTNode):
     body: list[Statement]
 
 
-# TODO: Add support for communication primitives
 @dataclass(frozen=True)
 class Statement(ASTNode):
     """
     Represents a statement
     """
-    stmt: Assignment | Call | If | While | Begin
+    stmt: Assignment | Call | If | While | Begin | Read | Write
 
 
 @dataclass(frozen=True)

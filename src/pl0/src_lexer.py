@@ -116,7 +116,7 @@ class Lexer:
             return Token.op(val)
 
         # Check for a single character operator
-        if self._s[self._i] in '+-*/=#,;.()<>':
+        if self._s[self._i] in '+-*/=#,;.()<>!?':
             val = self._s[self._i]
             self._i += 1
             return Token.op(val)

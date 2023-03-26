@@ -103,6 +103,10 @@ class ICInterpreter:
                     # when declaring a procedure, the following IRs (until the RET corresponding) are the procedure body
                     # , and we need to skip them
                     self._search_ret()
+                case IROp.INPUT:
+                    self.stack.append(int(input()))
+                case IROp.OUTPUT:
+                    print(self.stack.pop())
                 case IROp.HALT:
                     break
 
