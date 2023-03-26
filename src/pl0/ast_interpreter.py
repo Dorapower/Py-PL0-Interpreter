@@ -1,4 +1,5 @@
-import ast_node, symboltable
+import ast_node
+import symboltable
 
 
 class ASTInterpreter:

@@ -1,0 +1,22 @@
+const n = 5;
+var i, s, r;
+procedure p;
+begin
+  i := 0; s := 0;
+  while i < n do
+  begin
+    i := i + 1;
+    s := s + i * i
+  end;
+  call q;
+  r := r - 1;
+  if r > 0 then call p
+end;
+
+procedure q;
+  ! s;
+
+begin
+  ? r;
+  call p
+end.
