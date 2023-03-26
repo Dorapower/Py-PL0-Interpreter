@@ -7,7 +7,7 @@ IROp = icg.IROp
 class ICInterpreter:
     ic: list[icg.IR]  # intermediate code
     pc: int  # program counter
-    stack: list[int]  # contains values
+    stack: list[int | bool]  # contains values
     env: list[symboltable.SymbolTable]  # contains variables
     debug: bool
 
@@ -96,7 +96,7 @@ class ICInterpreter:
                 case IROp.JMP:
                     self.pc = ir.opr
                 case IROp.JPF:
-                    if self.stack.pop():
+                    if not self.stack.pop():
                         self.pc = ir.opr
                 case IROp.VAR:
                     self.current_env.register_var(ir.opr)
