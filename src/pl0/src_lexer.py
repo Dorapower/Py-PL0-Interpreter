@@ -105,8 +105,8 @@ class Lexer:
             while not self._eof() and self._s[self._i] in VALID_IDENTIFIER_CONTINUES:
                 val += self._s[self._i]
                 self._i += 1
-            if val in Keyword.__members__.values():
-                return Token.keyword(val)
+            if val.lower() in Keyword.__members__.values():
+                return Token.keyword(val.lower())
             return Token.name(val)
 
         # Check for a two character operator

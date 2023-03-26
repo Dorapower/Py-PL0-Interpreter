@@ -2,7 +2,7 @@
 A PL/0 Parser implemented in Python
 
 ## Grammar
-The grammer is based on wikipedia's [PL/0](https://en.wikipedia.org/wiki/PL/0) page.
+The grammar is based on wikipedia's [PL/0](https://en.wikipedia.org/wiki/PL/0) page.
 ```ebnf
 program = block "." ;
 
@@ -25,6 +25,31 @@ term = factor {("*"|"/") factor};
 
 factor = ident | number | "(" expression ")";
 ```
+### Keywords
+**Note**: Keywords are case-insensitive in this implementation.
+- `const`: declares constants
+- `var`: declares variables
+- `procedure`: declares a procedure
+- `call`: calls a procedure
+- `begin`: composite statements
+- `end`: composite statements ends
+- `if`: conditional statement condition
+- `then`: conditional statement body
+- `while`: loop statement condition
+- `do`: loop statement body
+- `odd`: condition operator, returns true if the expression is odd
+
+### Operators
+- `+`, `-`: unary operators
+- `+`, `-`, `*`, `/`: arithmetic operators
+- `=`, `#`, `<`, `<=`, `>`, `>=`: comparison operators
+- `:=`: assignment operator
+- `?`: input operator
+- `!`: output operator
+- `;`: statement separator
+- `,`: variable separator
+- `(`, `)`: parenthesis
+- `.`: program end
 
 ## Features
 - [x] Lexer: converts source code into tokens
