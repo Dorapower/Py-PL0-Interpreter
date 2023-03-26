@@ -30,8 +30,8 @@ factor = ident | number | "(" expression ")";
 - [x] Lexer: converts source code into tokens
 - [x] Parser: converts tokens into an AST
 - [x] ASTInterpreter: interprets the AST
-- [ ] IR Generator: generates an IR from the AST
-- [ ] IR Interpreter: interprets the IR
+- [x] IR Generator: generates an IR from the AST
+- [x] IR Interpreter: interprets the IR
 
 ## Test
 To test a certain program, either use pytest to run the test file or run the following command:
