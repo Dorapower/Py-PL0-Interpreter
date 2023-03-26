@@ -1,5 +1,5 @@
-# Py-PL0-Parser
-A PL/0 Parser implemented in Python
+# Py-PL0-Interpreter
+A PL/0 Interpreter implemented in Python
 
 ## Grammar
 The grammar is based on wikipedia's [PL/0](https://en.wikipedia.org/wiki/PL/0) page.
@@ -58,9 +58,13 @@ factor = ident | number | "(" expression ")";
 - [x] IR Generator: generates an IR from the AST
 - [x] IR Interpreter: interprets the IR
 
+## Use the Interpreter
+TODO
+
 ## Test
-To test a certain program, either use pytest to run the test file or run the following command:
+To test a certain program, either use pytest to run the test file (not covering
+a lot) or run the following command:
 ```bash
-python3.11 <path-to-program> < <path-to-input>
+python3.11 <path-to-program> <path-to-input>
 ```
 and the output will be printed to the console.
