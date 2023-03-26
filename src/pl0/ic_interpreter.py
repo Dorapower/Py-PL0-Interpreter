@@ -1,5 +1,3 @@
-import math
-
 import icg
 import symboltable
 
@@ -63,7 +61,10 @@ class ICInterpreter:
                 case IROp.MUL:
                     self.stack.append(self.stack.pop() * self.stack.pop())
                 case IROp.DIV:
-                    self.stack.append(math.floor(1 / self.stack.pop() * self.stack.pop()))
+                    divisor, dividend = self.stack.pop(), self.stack.pop()
+                    if divisor == 0:
+                        raise ZeroDivisionError("Divisor cannot be zero")
+                    self.stack.append(dividend // divisor)
                 case IROp.NEG:
                     self.stack.append(-self.stack.pop())
                 case IROp.EQ:
