@@ -58,5 +58,5 @@ class SymbolTable:
                 return symbol
         return None
 
-    def __str__(self):
+    def __repr__(self):
         return f"SymbolTable({self.symbols})"

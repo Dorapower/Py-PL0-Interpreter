@@ -1,3 +1,5 @@
+import math
+
 import icg
 import symboltable
 
@@ -26,6 +28,12 @@ class ICInterpreter:
     def current_env(self) -> symboltable.SymbolTable:
         return self.env[-1]
 
+    def retrieve(self, ident: str) -> symboltable.Symbol:
+        for env in reversed(self.env):
+            if (symbol := env.retrieve(ident)) is not None:
+                return symbol
+        raise KeyError(f"Identifier {ident!r} not found")
+
     def _search_ret(self) -> None:
         """
         Search for the corresponding RET instruction and set the pc to it.
@@ -45,6 +53,8 @@ class ICInterpreter:
         while True:
             ir = self.current_ir
             self.pc += 1  # pc always points to the next instruction
+            if self.debug:
+                print(f"<DEBUG> {ir=}, {self.stack=}, {self.env=}")
             match ir.op:
                 case IROp.ADD:
                     self.stack.append(self.stack.pop() + self.stack.pop())
@@ -53,7 +63,7 @@ class ICInterpreter:
                 case IROp.MUL:
                     self.stack.append(self.stack.pop() * self.stack.pop())
                 case IROp.DIV:
-                    self.stack.append(1 // self.stack.pop() * self.stack.pop())
+                    self.stack.append(math.floor(1 / self.stack.pop() * self.stack.pop()))
                 case IROp.NEG:
                     self.stack.append(-self.stack.pop())
                 case IROp.EQ:
@@ -71,16 +81,18 @@ class ICInterpreter:
                 case IROp.ODD:
                     self.stack.append(self.stack.pop() % 2)
                 case IROp.LOAD:
-                    ident = self.current_env.retrieve(ir.opr)
+                    ident = self.retrieve(ir.opr)
                     if ident is None:
                         raise Exception(f"Ident {ir.opr} is not defined")
                     if ident.value is None:
                         raise Exception(f"Ident {ir.opr} is not initialized")
                     self.stack.append(ident.value)
                 case IROp.STORE:
-                    ident = self.current_env.retrieve(ir.opr)
+                    ident = self.retrieve(ir.opr)
                     if ident is None:
                         raise Exception(f"Ident {ir.opr} is not defined")
+                    if ident.type != symboltable.SymbolType.VAR:
+                        raise Exception(f"Ident {ir.opr} is not a variable")
                     ident.value = self.stack.pop()
                     if self.debug:
                         print(f"<DEBUG> Assign {ir.opr} to {ident.value}")
@@ -89,7 +101,7 @@ class ICInterpreter:
                 case IROp.CALL:
                     self.stack.append(self.pc)
                     self.env.append(symboltable.SymbolTable())
-                    self.pc = ir.opr
+                    self.pc = self.retrieve(ir.opr).value
                 case IROp.RET:
                     self.env.pop()
                     self.pc = self.stack.pop()
