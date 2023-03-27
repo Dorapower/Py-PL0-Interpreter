@@ -200,6 +200,7 @@ class ASTInterpreter:
             return self.interpret_expression(cond.expr) % 2 == 1
         elif isinstance(cond, ast_node.ComparisonCondition):
             return self.interpret_comparison(cond)
+        raise TypeError('Unknown condition type')
 
     def interpret_comparison(self, comp: ast_node.ComparisonCondition) -> bool:
         """
