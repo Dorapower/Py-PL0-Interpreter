@@ -223,16 +223,16 @@ class ICG:
             case '+' | None:
                 pass
             case '-':
-                self.buf.append(IR(IROp.NEG, None))
+                self.buf.append(IR(IROp.NEG))
             case _:
                 raise ValueError(f"Invalid prefix {node.prefix}")
         for term, op in zip(node.terms[1:], node.ops):
             self.generate_term(term)
             match op:
                 case '+':
-                    self.buf.append(IR(IROp.ADD, None))
+                    self.buf.append(IR(IROp.ADD))
                 case '-':
-                    self.buf.append(IR(IROp.SUB, None))
+                    self.buf.append(IR(IROp.SUB))
                 case _:
                     raise ValueError(f"Invalid operator {op}")
 
@@ -245,9 +245,9 @@ class ICG:
             self.generate_factor(factor)
             match op:
                 case '*':
-                    self.buf.append(IR(IROp.MUL, None))
+                    self.buf.append(IR(IROp.MUL))
                 case '/':
-                    self.buf.append(IR(IROp.DIV, None))
+                    self.buf.append(IR(IROp.DIV))
                 case _:
                     raise ValueError(f"Invalid operator {op}")
 
