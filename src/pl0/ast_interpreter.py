@@ -239,8 +239,10 @@ class ASTInterpreter:
         for term, op in zip(expr.terms[1:], expr.ops):
             if op == '+':
                 result += self.interpret_term(term)
-            else:
+            elif op == '-':
                 result -= self.interpret_term(term)
+            else:
+                raise TypeError('Unknown expression operator')
         return result
 
     def interpret_term(self, term: ast_node.Term) -> int:
@@ -253,8 +255,10 @@ class ASTInterpreter:
         for factor, op in zip(term.factors[1:], term.ops):
             if op == '*':
                 result *= self.interpret_factor(factor)
-            else:
+            elif op == '/':
                 result //= self.interpret_factor(factor)
+            else:
+                raise TypeError('Unknown term operator')
         return result
 
     def interpret_factor(self, factor: ast_node.Factor) -> int:
@@ -275,6 +279,7 @@ class ASTInterpreter:
                 if result is not None:  # identifier found
                     break
             return result.value
+        raise TypeError('Unknown factor type')
 
 
 def main():
