@@ -1,0 +1,7 @@
+var f, v;
+begin
+    f := 6;
+    call f;
+    v := 0;
+    !v
+end.

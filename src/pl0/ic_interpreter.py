@@ -39,13 +39,12 @@ class ICInterpreter:
         """
         proc_count = 1
         while proc_count > 0:
-            self.pc += 1
             ir = self.current_ir
             if ir.op == IROp.PROC:
                 proc_count += 1
             elif ir.op == IROp.RET:
                 proc_count -= 1
-        self.pc += 1
+            self.pc += 1
 
     def run(self) -> None:
         while True:
@@ -87,6 +86,8 @@ class ICInterpreter:
                         raise Exception(f"Ident {ir.opr} is not defined")
                     if ident.value is None:
                         raise Exception(f"Ident {ir.opr} is not initialized")
+                    if ident.type == symboltable.SymbolType.PROC:
+                        raise Exception(f"Trying to load a procedure {ir.opr}")
                     self.stack.append(ident.value)
                 case IROp.STORE:
                     ident = self.retrieve(ir.opr)
@@ -100,9 +101,12 @@ class ICInterpreter:
                 case IROp.LIT:
                     self.stack.append(ir.opr)
                 case IROp.CALL:
+                    ident = self.retrieve(ir.opr)
+                    if ident.type != symboltable.SymbolType.PROC:
+                        raise Exception(f"Trying to call a non-procedure {ir.opr}")
                     self.stack.append(self.pc)
                     self.env.append(symboltable.SymbolTable())
-                    self.pc = self.retrieve(ir.opr).value
+                    self.pc = ident.value
                 case IROp.RET:
                     self.env.pop()
                     self.pc = self.stack.pop()
