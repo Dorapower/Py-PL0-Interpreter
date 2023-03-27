@@ -39,13 +39,12 @@ class ICInterpreter:
         """
         proc_count = 1
         while proc_count > 0:
-            self.pc += 1
             ir = self.current_ir
             if ir.op == IROp.PROC:
                 proc_count += 1
             elif ir.op == IROp.RET:
                 proc_count -= 1
-        self.pc += 1
+            self.pc += 1
 
     def run(self) -> None:
         while True:

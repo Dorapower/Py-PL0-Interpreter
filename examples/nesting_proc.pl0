@@ -1,0 +1,12 @@
+var i;
+procedure foo;
+    procedure bar;
+    begin
+        i := 2
+    end;
+begin
+    i := 1
+end;
+begin
+    !i
+end.
