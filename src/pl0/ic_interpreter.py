@@ -87,6 +87,8 @@ class ICInterpreter:
                         raise Exception(f"Ident {ir.opr} is not defined")
                     if ident.value is None:
                         raise Exception(f"Ident {ir.opr} is not initialized")
+                    if ident.type == symboltable.SymbolType.PROC:
+                        raise Exception(f"Trying to load a procedure {ir.opr}")
                     self.stack.append(ident.value)
                 case IROp.STORE:
                     ident = self.retrieve(ir.opr)
